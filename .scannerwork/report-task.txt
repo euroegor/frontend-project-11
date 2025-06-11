@@ -1,0 +1,6 @@
+projectKey=rss_aggregator
+serverUrl=http://localhost:9000
+serverVersion=25.6.0.109173
+dashboardUrl=http://localhost:9000/dashboard?id=rss_aggregator
+ceTaskId=aa3638e6-56e6-4c5b-bef4-87a6e8a81948
+ceTaskUrl=http://localhost:9000/api/ce/task?id=aa3638e6-56e6-4c5b-bef4-87a6e8a81948
