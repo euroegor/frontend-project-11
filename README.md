@@ -3,3 +3,4 @@
 ![CI](https://github.com/euroegor/frontend-project-11/actions/workflows/ci.yml/badge.svg)
 ![Node](https://img.shields.io/badge/node-20.x-brightgreen)
 ![License](https://img.shields.io/badge/license-ISC-blue)
+![ESLint](https://github.com/euroegor/frontend-project-11/actions/workflows/ci.yml/badge.svg?event=push)
