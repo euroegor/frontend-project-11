@@ -15,5 +15,8 @@
     "globals": "^16.2.0",
     "sass": "^1.89.2",
     "vite": "^6.3.5"
+  },
+  "dependencies": {
+    "bootstrap": "^5.3.6"
   }
 }
