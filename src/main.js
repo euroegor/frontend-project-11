@@ -17,3 +17,4 @@ form.addEventListener("submit", (event) => {
   console.log("Добавляем RSS:", url);
   input.value = "";
 });
+
