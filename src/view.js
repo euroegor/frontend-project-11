@@ -1,15 +1,17 @@
+import i18next from 'i18next';
+
 const renderFeedback = (elements, state) => {
   const { feedback, input } = elements;
 
   if (state.form.status === 'valid') {
-    feedback.textContent = 'RSS успешно загружен';
+    feedback.textContent = i18next.t('success');
     feedback.classList.remove('text-danger');
     feedback.classList.add('text-success');
     input.classList.remove('is-invalid');
   }
 
   if (state.form.status === 'invalid') {
-    feedback.textContent = state.form.error;
+    feedback.textContent = i18next.t(state.form.error);
     feedback.classList.remove('text-success');
     feedback.classList.add('text-danger');
     input.classList.add('is-invalid');
