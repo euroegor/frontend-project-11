@@ -2,49 +2,64 @@ import "./styles.scss";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap";
 import * as yup from "yup";
-import onChange from "on-change";
 import initView from "./view.js";
-import initI18n from "./locales/index.js";
+import initI18n from "./locales/initI18n.js";
+import i18next from "i18next";
 
-initI18n().then(() => {
-  const elements = {
-    form: document.getElementById("rss-form"),
-    input: document.getElementById("url-input"),
-    feedback: document.querySelector(".feedback"),
-  };
+const runApp = async () => {
+  await initI18n();
+
+ yup.setLocale({
+    string: {
+      url: () => i18next.t('errors.invalidUrl'),
+      required: () => i18next.t('errors.invalidUrl'),
+    },
+    mixed: {
+      notOneOf: () => i18next.t('errors.notOneOf'),
+    },
+  });
+  console.log(i18next.t('errors.invalidUrl'))
 
   const state = {
     form: {
-      status: "idle", // 'valid', 'invalid'
+      status: "idle", // 'valid' 'invalid'
       error: null,
     },
-    urladded: [],
+    urls: [],
   };
 
-  const watchedState = onChange(state, initView(state, elements));
+  const form = document.getElementById("rss-form");
+  const input = document.getElementById("url-input");
+  const feedback = document.querySelector(".feedback");
 
-  const schemaDinamic = () => {
-  return yup
+  const elements = { form, input, feedback };
+  const watchedState = initView(state, elements);
+
+   const schema = () => yup
     .string()
+    .trim()
     .required()
     .url()
-    .notOneOf(state.urladded);
-};
-  elements.form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const url = elements.input.value.trim();
+    .notOneOf(state.urls);
 
-    schemaDinamic()
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const url = input.value.trim();
+    schema()
       .validate(url)
       .then(() => {
-        watchedState.urladded.push(url);
         watchedState.form.status = "valid";
-        elements.form.reset();
-        elements.input.focus();
+        watchedState.form.error = null;
+        watchedState.urls.push(url);
+        input.value = "";
+        input.focus();
       })
       .catch((err) => {
+        console.log(err.message);
         watchedState.form.status = "invalid";
         watchedState.form.error = err.message;
       });
   });
-});
+};
+
+runApp();
