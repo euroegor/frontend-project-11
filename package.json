@@ -1,5 +1,5 @@
 {
-  "name": "frontend-project-11",
+  "name": "@hexlet/code",
   "private": true,
   "version": "1.0.0",
   "type": "module",
@@ -7,15 +7,12 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint .",
-    "sonar": "sonar-scanner"
+    "lint": "eslint ."
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",
     "eslint": "^9.29.0",
     "globals": "^16.2.0",
-    "sass": "^1.89.2",
-    "sonar-scanner": "^3.1.0",
     "vite": "^6.3.5"
   },
   "dependencies": {
