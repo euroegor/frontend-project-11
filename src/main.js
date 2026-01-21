@@ -18,7 +18,6 @@ const state = {
 };
 
 const form = document.getElementById("rss-form");
-//const feedback = document.querySelector('.feedback');
 
 const watchedState = onChange(state, () => {
   render(watchedState);
