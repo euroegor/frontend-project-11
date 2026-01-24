@@ -1,4 +1,4 @@
-const render = (watchedState) => {
+const render = (watchedState, i18n) => {
   const feedback = document.querySelector(".feedback");
   const input = document.getElementById("url-input");
   input.value = watchedState.form.url;
@@ -11,10 +11,10 @@ const render = (watchedState) => {
     input.classList.remove("is-invalid");
   }
   if (watchedState.form.status === "failed") {
-    feedback.textContent = watchedState.form.error;
+    feedback.textContent = i18n.t(watchedState.form.error);
   } else if (watchedState.form.status === "success") {
     input.classList.remove("is-invalid");
-    feedback.textContent = "RSS успешно загружен";
+    feedback.textContent = i18n.t("feedback.success");
     feedback.classList.remove("text-danger");
     feedback.classList.add("text-success");
     input.focus();

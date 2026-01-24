@@ -1,9 +1,12 @@
 export default {
   translation: {
-    success: 'RSS успешно добавлен',
+    feedback: {
+      success: 'RSS успешно добавлен',
+    },
     errors: {
+      required: 'Поле не должно быть пустым',
       invalidUrl: 'Ссылка должна быть валидным URL',
-      notOneOf: 'RSS уже существует',
+      duplicate: 'RSS уже существует',
     },
   },
 };
