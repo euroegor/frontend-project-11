@@ -65,7 +65,6 @@ initI18n().then((i18n) => {
         return parseRss(xml);
       })
       .then(({ feed, posts }) => {
-        //console.log({ feed, posts });
         const url = watchedState.form.url;
         const randomId = crypto.randomUUID();
         const newFeed = {
