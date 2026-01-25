@@ -94,5 +94,40 @@ initI18n().then((i18n) => {
       });
   });
 
+  const pollFeeds = () => {
+    const existingLinks = new Set(watchedState.posts.map((p) => p.link));
+
+    const requests = watchedState.feeds.map((feed) => {
+      return axios
+        .get(makeProxyUrl(feed.url))
+        .then((response) => {
+          const xml = response.data.contents;
+          return parseRss(xml);
+        })
+        .then(({ posts }) => {
+          const newPosts = posts.filter(
+            (post) => !existingLinks.has(post.link),
+          );
+          newPosts.forEach((p) => existingLinks.add(p.link));
+          const newPostsWithId = newPosts.map((p) => ({
+            id: crypto.randomUUID(),
+            feedId: feed.id,
+            title: p.title,
+            description: p.description,
+            link: p.link,
+          }));
+          watchedState.posts = newPostsWithId.concat(watchedState.posts);
+        })
+        .catch(() => {
+          // error ignor
+        });
+    });
+
+    return Promise.all(requests).finally(() => {
+      setTimeout(pollFeeds, 5000);
+    });
+  };
+
   render(watchedState, i18n);
+  pollFeeds();
 });
