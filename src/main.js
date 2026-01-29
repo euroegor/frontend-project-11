@@ -88,9 +88,21 @@ initI18n().then((i18n) => {
         watchedState.form.error = null;
       })
       .catch((err) => {
-        watchedState.form.error =
-          err.name === "ValidationError" ? err.message : "errors.network";
         watchedState.form.status = "failed";
+        if (err.name === "ValidationError") {
+          watchedState.form.error = err.message;
+          return;
+        }
+
+        if (
+          typeof err.message === "string" &&
+          err.message.startsWith("errors.")
+        ) {
+          watchedState.form.error = err.message;
+          return;
+        }
+
+        watchedState.form.error = "errors.network";
       });
   });
 
