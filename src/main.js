@@ -7,8 +7,8 @@ import initI18n from "./locales/initI18n.js";
 import axios from "axios";
 import parseRss from "./parsers/rss.js";
 
-initI18n() // NOSONAR
-  .then((i18n) => {
+initI18n()
+  .then((i18n) => { // NOSONAR
     const state = {
       form: {
         status: "idle", // idle | success | failed | sending
