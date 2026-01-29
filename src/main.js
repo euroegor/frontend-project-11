@@ -17,7 +17,8 @@ initI18n().then((i18n) => {
     feeds: [],
     posts: [],
     ui: {
-      readPostsIds: new Set(),
+      readPostsIds: [],
+      modalPostId: null,
     },
   };
 
@@ -94,38 +95,54 @@ initI18n().then((i18n) => {
       });
   });
 
+  const postsContainer = document.getElementById("posts-container");
+  postsContainer.addEventListener("click", (e) => {
+    const element = e.target.closest("[data-id]");
+    if (!element) {
+      return;
+    }
+    const id = element.dataset.id;
+    if (!watchedState.ui.readPostsIds.includes(id)) {
+      watchedState.ui.readPostsIds = [...watchedState.ui.readPostsIds, id];
+    }
+    watchedState.ui.modalPostId = id;
+  });
+
+  const fetchPosts = (feed) =>
+    axios
+      .get(makeProxyUrl(feed.url))
+      .then((response) => parseRss(response.data.contents))
+      .then(({ posts }) => posts);
+
+  const schedulePolling = () => setTimeout(pollFeeds, 5000);
+
+  const addNewPosts = (feed, posts, existingLinks) => {
+    const newPosts = posts.filter((post) => !existingLinks.has(post.link));
+    newPosts.forEach((p) => existingLinks.add(p.link));
+
+    const newPostsWithId = newPosts.map((p) => ({
+      id: crypto.randomUUID(),
+      feedId: feed.id,
+      title: p.title,
+      description: p.description,
+      link: p.link,
+    }));
+
+    watchedState.posts = newPostsWithId.concat(watchedState.posts);
+  };
+
   const pollFeeds = () => {
     const existingLinks = new Set(watchedState.posts.map((p) => p.link));
 
-    const requests = watchedState.feeds.map((feed) => {
-      return axios
-        .get(makeProxyUrl(feed.url))
-        .then((response) => {
-          const xml = response.data.contents;
-          return parseRss(xml);
-        })
-        .then(({ posts }) => {
-          const newPosts = posts.filter(
-            (post) => !existingLinks.has(post.link),
-          );
-          newPosts.forEach((p) => existingLinks.add(p.link));
-          const newPostsWithId = newPosts.map((p) => ({
-            id: crypto.randomUUID(),
-            feedId: feed.id,
-            title: p.title,
-            description: p.description,
-            link: p.link,
-          }));
-          watchedState.posts = newPostsWithId.concat(watchedState.posts);
-        })
+    const requests = watchedState.feeds.map((feed) =>
+      fetchPosts(feed)
+        .then((posts) => addNewPosts(feed, posts, existingLinks))
         .catch(() => {
-          // error ignor
-        });
-    });
+          // ignor error
+        }),
+    );
 
-    return Promise.all(requests).finally(() => {
-      setTimeout(pollFeeds, 5000);
-    });
+    return Promise.all(requests).finally(schedulePolling);
   };
 
   render(watchedState, i18n);

@@ -5,6 +5,19 @@ const render = (watchedState, i18n) => {
   const input = document.getElementById("url-input");
   input.value = watchedState.form.url;
 
+  const modalTitle = document.querySelector(".modal-title");
+  const modalBody = document.querySelector(".modal-body");
+  const modalLink = document.querySelector(".full-article");
+
+  if (watchedState.ui.modalPostId !== null) {
+    const id = watchedState.ui.modalPostId;
+    const post = watchedState.posts.find((p) => p.id === id);
+    if (!post) return;
+    modalTitle.textContent = post.title;
+    modalBody.textContent = post.description;
+    modalLink.href = post.link;
+  }
+
   const renderFeeds = () => {
     feedsContainer.innerHTML = "";
     if (watchedState.feeds.length === 0) {
@@ -18,7 +31,7 @@ const render = (watchedState, i18n) => {
 
     const feedTitle = document.createElement("h2");
     feedTitle.classList.add("card-title", "h4");
-    feedTitle.textContent = i18n.t('feeds.title');
+    feedTitle.textContent = i18n.t("feeds.title");
 
     const listUl = document.createElement("ul");
     listUl.classList.add("list-group", "border-0", "rounded-0");
@@ -57,7 +70,7 @@ const render = (watchedState, i18n) => {
 
     const postTitle = document.createElement("h2");
     postTitle.classList.add("card-title", "h4");
-    postTitle.textContent = i18n.t('post.title');
+    postTitle.textContent = i18n.t("posts.title");
 
     const listUl = document.createElement("ul");
     listUl.classList.add("list-group", "border-0", "rounded-0");
@@ -78,7 +91,13 @@ const render = (watchedState, i18n) => {
       );
 
       const link = document.createElement("a");
-      link.classList.add("fw-bold");
+
+      if (watchedState.ui.readPostsIds.includes(post.id)) {
+        link.classList.add("fw-normal", "link-secondary");
+      } else {
+        link.classList.add("fw-bold");
+      }
+
       link.href = post.link;
       link.target = "_blank";
       link.rel = "noopener noreferrer";
@@ -89,9 +108,9 @@ const render = (watchedState, i18n) => {
       button.classList.add("btn", "btn-outline-primary", "btn-sm");
       button.type = "button";
       button.dataset.id = post.id;
-      button.textContent = i18n.t('posts.preview');
-      button.setAttribute("data-bs-toggle", "modal");
-      button.setAttribute("data-bs-target", "#modal");
+      button.textContent = i18n.t("posts.preview");
+      button.dataset.bsToggle = "modal";
+      button.dataset.bsTarget = "#modal";
 
       listLi.append(link, button);
       listUl.append(listLi);
