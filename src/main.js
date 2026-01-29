@@ -7,142 +7,143 @@ import initI18n from "./locales/initI18n.js";
 import axios from "axios";
 import parseRss from "./parsers/rss.js";
 
-initI18n()
-  .then((i18n) => { // NOSONAR
-    const state = {
-      form: {
-        status: "idle", // idle | success | failed | sending
-        error: null,
-        url: "",
-      },
-      feeds: [],
-      posts: [],
-      ui: {
-        readPostsIds: [],
-        modalPostId: null,
-      },
-    };
+initI18n().then((i18n) => {
+  // NOSONAR
+  const state = {
+    form: {
+      status: "idle", // idle | success | failed | sending
+      error: null,
+      url: "",
+    },
+    feeds: [],
+    posts: [],
+    ui: {
+      readPostsIds: [],
+      modalPostId: null,
+    },
+  };
 
-    const form = document.getElementById("rss-form");
+  const form = document.getElementById("rss-form");
 
-    const watchedState = onChange(state, () => {
-      render(watchedState, i18n);
-    });
-
-    const schema = yup
-      .string()
-      .trim()
-      .required()
-      .url()
-      .test("is-duplicate-rss", "errors.duplicate", (url) => {
-        return !watchedState.feeds.some((item) => item.url === url);
-      });
-
-    const makeProxyUrl = (url) => {
-      const proxy = "https://allorigins.hexlet.app/get";
-      const params = new URLSearchParams({
-        disableCache: "true",
-        url,
-      });
-
-      return `${proxy}?${params.toString()}`;
-    };
-
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const input = document.getElementById("url-input");
-      watchedState.form.url = input.value.trim();
-      schema
-        .validate(watchedState.form.url)
-        .then(() => {
-          watchedState.form.status = "sending";
-          watchedState.form.error = null;
-          return axios.get(makeProxyUrl(watchedState.form.url));
-        })
-        .then((response) => {
-          const xml = response.data.contents;
-          return parseRss(xml);
-        })
-        .then(({ feed, posts }) => {
-          const url = watchedState.form.url;
-          const randomId = crypto.randomUUID();
-          const newFeed = {
-            id: randomId,
-            url: url,
-            title: feed.title,
-            description: feed.description,
-          };
-          const newPosts = posts.map((item) => {
-            return {
-              id: crypto.randomUUID(),
-              feedId: randomId,
-              title: item.title,
-              description: item.description,
-              link: item.link,
-            };
-          });
-          watchedState.feeds.push(newFeed);
-          watchedState.posts = newPosts.concat(watchedState.posts);
-          watchedState.form.status = "success";
-          watchedState.form.url = "";
-          watchedState.form.error = null;
-        })
-        .catch((err) => {
-          watchedState.form.error = err.message || "errors.network";
-          watchedState.form.status = "failed";
-        });
-    });
-
-    const postsContainer = document.getElementById("posts-container");
-    postsContainer.addEventListener("click", (e) => {
-      const element = e.target.closest("[data-id]");
-      if (!element) {
-        return;
-      }
-      const id = element.dataset.id;
-      if (!watchedState.ui.readPostsIds.includes(id)) {
-        watchedState.ui.readPostsIds = [...watchedState.ui.readPostsIds, id];
-      }
-      watchedState.ui.modalPostId = id;
-    });
-
-    const fetchPosts = (feed) =>
-      axios
-        .get(makeProxyUrl(feed.url))
-        .then((response) => parseRss(response.data.contents))
-        .then(({ posts }) => posts);
-
-    const schedulePolling = () => setTimeout(pollFeeds, 5000);
-
-    const addNewPosts = (feed, posts, existingLinks) => {
-      const newPosts = posts.filter((post) => !existingLinks.has(post.link));
-      newPosts.forEach((p) => existingLinks.add(p.link));
-
-      const newPostsWithId = newPosts.map((p) => ({
-        id: crypto.randomUUID(),
-        feedId: feed.id,
-        title: p.title,
-        description: p.description,
-        link: p.link,
-      }));
-
-      watchedState.posts = newPostsWithId.concat(watchedState.posts);
-    };
-
-    const pollFeeds = () => {
-      const existingLinks = new Set(watchedState.posts.map((p) => p.link));
-
-      const requests = watchedState.feeds.map((feed) =>
-        fetchPosts(feed)
-          .then((posts) => addNewPosts(feed, posts, existingLinks))
-          .catch(() => {
-            // ignor error
-          }),
-      );
-
-      return Promise.all(requests).finally(schedulePolling);
-    };
-
+  const watchedState = onChange(state, () => {
     render(watchedState, i18n);
-    pollFeeds();
   });
+
+  const schema = yup
+    .string()
+    .trim()
+    .required()
+    .url()
+    .test("is-duplicate-rss", "errors.duplicate", (url) => {
+      return !watchedState.feeds.some((item) => item.url === url);
+    });
+
+  const makeProxyUrl = (url) => {
+    const proxy = "https://allorigins.hexlet.app/get";
+    const params = new URLSearchParams({
+      disableCache: "true",
+      url,
+    });
+
+    return `${proxy}?${params.toString()}`;
+  };
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const input = document.getElementById("url-input");
+    watchedState.form.url = input.value.trim();
+    schema
+      .validate(watchedState.form.url)
+      .then(() => {
+        watchedState.form.status = "sending";
+        watchedState.form.error = null;
+        return axios.get(makeProxyUrl(watchedState.form.url));
+      })
+      .then((response) => {
+        const xml = response.data.contents;
+        return parseRss(xml);
+      })
+      .then(({ feed, posts }) => {
+        const url = watchedState.form.url;
+        const randomId = crypto.randomUUID();
+        const newFeed = {
+          id: randomId,
+          url: url,
+          title: feed.title,
+          description: feed.description,
+        };
+        const newPosts = posts.map((item) => {
+          return {
+            id: crypto.randomUUID(),
+            feedId: randomId,
+            title: item.title,
+            description: item.description,
+            link: item.link,
+          };
+        });
+        watchedState.feeds.push(newFeed);
+        watchedState.posts = newPosts.concat(watchedState.posts);
+        watchedState.form.status = "success";
+        watchedState.form.url = "";
+        watchedState.form.error = null;
+      })
+      .catch((err) => {
+        watchedState.form.error =
+          err.name === "ValidationError" ? err.message : "errors.network";
+        watchedState.form.status = "failed";
+      });
+  });
+
+  const postsContainer = document.getElementById("posts-container");
+  postsContainer.addEventListener("click", (e) => {
+    const element = e.target.closest("[data-id]");
+    if (!element) {
+      return;
+    }
+    const id = element.dataset.id;
+    if (!watchedState.ui.readPostsIds.includes(id)) {
+      watchedState.ui.readPostsIds = [...watchedState.ui.readPostsIds, id];
+    }
+    watchedState.ui.modalPostId = id;
+  });
+
+  const fetchPosts = (feed) =>
+    axios
+      .get(makeProxyUrl(feed.url))
+      .then((response) => parseRss(response.data.contents))
+      .then(({ posts }) => posts);
+
+  const schedulePolling = () => setTimeout(pollFeeds, 5000);
+
+  const addNewPosts = (feed, posts, existingLinks) => {
+    const newPosts = posts.filter((post) => !existingLinks.has(post.link));
+    newPosts.forEach((p) => existingLinks.add(p.link));
+
+    const newPostsWithId = newPosts.map((p) => ({
+      id: crypto.randomUUID(),
+      feedId: feed.id,
+      title: p.title,
+      description: p.description,
+      link: p.link,
+    }));
+
+    watchedState.posts = newPostsWithId.concat(watchedState.posts);
+  };
+
+  const pollFeeds = () => {
+    const existingLinks = new Set(watchedState.posts.map((p) => p.link));
+
+    const requests = watchedState.feeds.map((feed) =>
+      fetchPosts(feed)
+        .then((posts) => addNewPosts(feed, posts, existingLinks))
+        .catch(() => {
+          // ignor error
+        }),
+    );
+
+    return Promise.all(requests).finally(schedulePolling);
+  };
+
+  render(watchedState, i18n);
+  pollFeeds();
+});
