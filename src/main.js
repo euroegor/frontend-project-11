@@ -7,8 +7,7 @@ import initI18n from './locales/initI18n.js'
 import axios from 'axios'
 import parseRss from './parsers/rss.js'
 
-initI18n().then(i18n => {
-  // NOSONAR
+initI18n().then((i18n) => { // NOSONAR
   const state = {
     form: {
       status: 'idle', // idle | success | failed | sending
@@ -34,11 +33,11 @@ initI18n().then(i18n => {
     .trim()
     .required()
     .url()
-    .test('is-duplicate-rss', 'errors.duplicate', url => {
-      return !watchedState.feeds.some(item => item.url === url)
+    .test('is-duplicate-rss', 'errors.duplicate', (url) => {
+      return !watchedState.feeds.some((item) => item.url === url)
     })
 
-  const makeProxyUrl = url => {
+  const makeProxyUrl = (url) => {
     const proxy = 'https://allorigins.hexlet.app/get'
     const params = new URLSearchParams({
       disableCache: 'true',
@@ -48,7 +47,7 @@ initI18n().then(i18n => {
     return `${proxy}?${params.toString()}`
   }
 
-  form.addEventListener('submit', e => {
+  form.addEventListener('submit', (e) => {
     e.preventDefault()
     const input = document.getElementById('url-input')
     watchedState.form.url = input.value.trim()
@@ -59,7 +58,7 @@ initI18n().then(i18n => {
         watchedState.form.error = null
         return axios.get(makeProxyUrl(watchedState.form.url))
       })
-      .then(response => {
+      .then((response) => {
         const xml = response.data.contents
         return parseRss(xml)
       })
@@ -72,7 +71,7 @@ initI18n().then(i18n => {
           title: feed.title,
           description: feed.description,
         }
-        const newPosts = posts.map(item => {
+        const newPosts = posts.map((item) => {
           return {
             id: crypto.randomUUID(),
             feedId: randomId,
@@ -87,7 +86,7 @@ initI18n().then(i18n => {
         watchedState.form.url = ''
         watchedState.form.error = null
       })
-      .catch(err => {
+      .catch((err) => {
         watchedState.form.status = 'failed'
         if (err.name === 'ValidationError') {
           watchedState.form.error = err.message
@@ -107,7 +106,7 @@ initI18n().then(i18n => {
   })
 
   const postsContainer = document.getElementById('posts-container')
-  postsContainer.addEventListener('click', e => {
+  postsContainer.addEventListener('click', (e) => {
     const element = e.target.closest('[data-id]')
     if (!element) {
       return
@@ -119,19 +118,19 @@ initI18n().then(i18n => {
     watchedState.ui.modalPostId = id
   })
 
-  const fetchPosts = feed =>
+  const fetchPosts = (feed) =>
     axios
       .get(makeProxyUrl(feed.url))
-      .then(response => parseRss(response.data.contents))
+      .then((response) => parseRss(response.data.contents))
       .then(({ posts }) => posts)
 
   const schedulePolling = () => setTimeout(pollFeeds, 5000)
 
   const addNewPosts = (feed, posts, existingLinks) => {
-    const newPosts = posts.filter(post => !existingLinks.has(post.link))
-    newPosts.forEach(p => existingLinks.add(p.link))
+    const newPosts = posts.filter((post) => !existingLinks.has(post.link))
+    newPosts.forEach((p) => existingLinks.add(p.link))
 
-    const newPostsWithId = newPosts.map(p => ({
+    const newPostsWithId = newPosts.map((p) => ({
       id: crypto.randomUUID(),
       feedId: feed.id,
       title: p.title,
@@ -143,11 +142,11 @@ initI18n().then(i18n => {
   }
 
   const pollFeeds = () => {
-    const existingLinks = new Set(watchedState.posts.map(p => p.link))
+    const existingLinks = new Set(watchedState.posts.map((p) => p.link))
 
-    const requests = watchedState.feeds.map(feed =>
+    const requests = watchedState.feeds.map((feed) =>
       fetchPosts(feed)
-        .then(posts => addNewPosts(feed, posts, existingLinks))
+        .then((posts) => addNewPosts(feed, posts, existingLinks))
         .catch(() => {
           // ignor error
         }),

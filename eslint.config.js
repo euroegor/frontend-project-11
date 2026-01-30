@@ -21,7 +21,7 @@ export default defineConfig([
       '@stylistic/quotes': ['error', 'single'],
       '@stylistic/semi': ['error', 'never'],
       '@stylistic/eol-last': 'error',
-      '@stylistic/arrow-parens': ['error', 'as-needed'],
+      '@stylistic/arrow-parens': ['error', 'always'],
       '@stylistic/operator-linebreak': ['error', 'before'],
       '@stylistic/brace-style': ['error', '1tbs'],
     },

@@ -11,7 +11,7 @@ const render = (watchedState, i18n) => {
 
   if (watchedState.ui.modalPostId !== null) {
     const id = watchedState.ui.modalPostId
-    const post = watchedState.posts.find(p => p.id === id)
+    const post = watchedState.posts.find((p) => p.id === id)
     if (!post) return
     modalTitle.textContent = post.title
     modalBody.textContent = post.description
@@ -40,7 +40,7 @@ const render = (watchedState, i18n) => {
     feedBorder.append(feedBody, listUl)
     feedsContainer.append(feedBorder)
 
-    watchedState.feeds.forEach(feed => {
+    watchedState.feeds.forEach((feed) => {
       const listLi = document.createElement('li')
       listLi.classList.add('list-group-item', 'border-0', 'border-end-0')
 
@@ -79,7 +79,7 @@ const render = (watchedState, i18n) => {
     postBorder.append(postBody, listUl)
     postsContainer.append(postBorder)
 
-    watchedState.posts.forEach(post => {
+    watchedState.posts.forEach((post) => {
       const listLi = document.createElement('li')
       listLi.classList.add(
         'list-group-item',
