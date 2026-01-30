@@ -13,9 +13,9 @@ export default defineConfig([
       globals: globals.browser,
     },
     plugins: {
-  js,
-  '@stylistic': stylistic,
-},
+      js,
+      '@stylistic': stylistic,
+    },
     extends: ['js/recommended'],
     rules: {
       '@stylistic/quotes': ['error', 'single'],

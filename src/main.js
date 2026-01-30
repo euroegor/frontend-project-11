@@ -34,7 +34,7 @@ initI18n().then((i18n) => { // NOSONAR
     .required()
     .url()
     .test('is-duplicate-rss', 'errors.duplicate', (url) => {
-      return !watchedState.feeds.some((item) => item.url === url)
+      return !watchedState.feeds.some(item => item.url === url)
     })
 
   const makeProxyUrl = (url) => {
@@ -118,19 +118,19 @@ initI18n().then((i18n) => { // NOSONAR
     watchedState.ui.modalPostId = id
   })
 
-  const fetchPosts = (feed) =>
+  const fetchPosts = feed =>
     axios
       .get(makeProxyUrl(feed.url))
-      .then((response) => parseRss(response.data.contents))
+      .then(response => parseRss(response.data.contents))
       .then(({ posts }) => posts)
 
   const schedulePolling = () => setTimeout(pollFeeds, 5000)
 
   const addNewPosts = (feed, posts, existingLinks) => {
-    const newPosts = posts.filter((post) => !existingLinks.has(post.link))
-    newPosts.forEach((p) => existingLinks.add(p.link))
+    const newPosts = posts.filter(post => !existingLinks.has(post.link))
+    newPosts.forEach(p => existingLinks.add(p.link))
 
-    const newPostsWithId = newPosts.map((p) => ({
+    const newPostsWithId = newPosts.map(p => ({
       id: crypto.randomUUID(),
       feedId: feed.id,
       title: p.title,
@@ -142,11 +142,11 @@ initI18n().then((i18n) => { // NOSONAR
   }
 
   const pollFeeds = () => {
-    const existingLinks = new Set(watchedState.posts.map((p) => p.link))
+    const existingLinks = new Set(watchedState.posts.map(p => p.link))
 
-    const requests = watchedState.feeds.map((feed) =>
+    const requests = watchedState.feeds.map(feed =>
       fetchPosts(feed)
-        .then((posts) => addNewPosts(feed, posts, existingLinks))
+        .then(posts => addNewPosts(feed, posts, existingLinks))
         .catch(() => {
           // ignor error
         }),

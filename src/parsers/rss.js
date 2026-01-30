@@ -9,7 +9,7 @@ const parseRss = (xmlString) => {
   if (rss === null && atom === null) {
     throw new Error('errors.notRss')
   }
-  const getText = (node) => (node ? node.textContent.trim() : '')
+  const getText = node => (node ? node.textContent.trim() : '')
   if (rss) {
     const titleEl = doc.querySelector('channel > title')
     const titleFeed = getText(titleEl)

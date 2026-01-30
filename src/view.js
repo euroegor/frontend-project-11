@@ -11,7 +11,7 @@ const render = (watchedState, i18n) => {
 
   if (watchedState.ui.modalPostId !== null) {
     const id = watchedState.ui.modalPostId
-    const post = watchedState.posts.find((p) => p.id === id)
+    const post = watchedState.posts.find(p => p.id === id)
     if (!post) return
     modalTitle.textContent = post.title
     modalBody.textContent = post.description
@@ -94,7 +94,8 @@ const render = (watchedState, i18n) => {
 
       if (watchedState.ui.readPostsIds.includes(post.id)) {
         link.classList.add('fw-normal', 'link-secondary')
-      } else {
+      } 
+      else {
         link.classList.add('fw-bold')
       }
 
@@ -122,22 +123,26 @@ const render = (watchedState, i18n) => {
 
   if (watchedState.form.status === 'sending') {
     input.classList.remove('is-invalid')
-  } else if (watchedState.form.status === 'failed') {
+  }
+  else if (watchedState.form.status === 'failed') {
     input.classList.add('is-invalid')
     feedback.classList.remove('text-success')
     feedback.classList.add('text-danger')
-  } else {
+  }
+  else {
     input.classList.remove('is-invalid')
   }
   if (watchedState.form.status === 'failed') {
     feedback.textContent = i18n.t(watchedState.form.error)
-  } else if (watchedState.form.status === 'success') {
+  }
+  else if (watchedState.form.status === 'success') {
     input.classList.remove('is-invalid')
     feedback.textContent = i18n.t('feedback.success')
     feedback.classList.remove('text-danger')
     feedback.classList.add('text-success')
     input.focus()
-  } else if (watchedState.form.status === 'idle') {
+  }
+  else if (watchedState.form.status === 'idle') {
     feedback.textContent = ''
     feedback.classList.remove('text-danger', 'text-success')
   }
