@@ -94,7 +94,7 @@ const render = (watchedState, i18n) => {
 
       if (watchedState.ui.readPostsIds.includes(post.id)) {
         link.classList.add('fw-normal', 'link-secondary')
-      } 
+      }
       else {
         link.classList.add('fw-bold')
       }
