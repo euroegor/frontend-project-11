@@ -4,8 +4,7 @@ import render from './view.js'
 import onChange from 'on-change'
 import * as yup from 'yup'
 import initI18n from './locales/initI18n.js'
-import axios from 'axios'
-import parseRss from './parsers/rss.js'
+import fetchRss from './controllers/rss.js'
 
 initI18n().then((i18n) => { // NOSONAR
   const state = {
@@ -37,16 +36,6 @@ initI18n().then((i18n) => { // NOSONAR
       return !watchedState.feeds.some(item => item.url === url)
     })
 
-  const makeProxyUrl = (url) => {
-    const proxy = 'https://allorigins.hexlet.app/get'
-    const params = new URLSearchParams({
-      disableCache: 'true',
-      url,
-    })
-
-    return `${proxy}?${params.toString()}`
-  }
-
   form.addEventListener('submit', (e) => {
     e.preventDefault()
     const input = document.getElementById('url-input')
@@ -56,11 +45,7 @@ initI18n().then((i18n) => { // NOSONAR
       .then(() => {
         watchedState.form.status = 'sending'
         watchedState.form.error = null
-        return axios.get(makeProxyUrl(watchedState.form.url))
-      })
-      .then((response) => {
-        const xml = response.data.contents
-        return parseRss(xml)
+        return fetchRss(watchedState.form.url)
       })
       .then(({ feed, posts }) => {
         const url = watchedState.form.url
@@ -118,14 +103,6 @@ initI18n().then((i18n) => { // NOSONAR
     watchedState.ui.modalPostId = id
   })
 
-  const fetchPosts = feed =>
-    axios
-      .get(makeProxyUrl(feed.url))
-      .then(response => parseRss(response.data.contents))
-      .then(({ posts }) => posts)
-
-  const schedulePolling = () => setTimeout(pollFeeds, 5000)
-
   const addNewPosts = (feed, posts, existingLinks) => {
     const newPosts = posts.filter(post => !existingLinks.has(post.link))
     newPosts.forEach(p => existingLinks.add(p.link))
@@ -141,18 +118,20 @@ initI18n().then((i18n) => { // NOSONAR
     watchedState.posts = newPostsWithId.concat(watchedState.posts)
   }
 
+  const schedulePolling = fn => setTimeout(fn, 5000)
+
   const pollFeeds = () => {
     const existingLinks = new Set(watchedState.posts.map(p => p.link))
 
     const requests = watchedState.feeds.map(feed =>
-      fetchPosts(feed)
-        .then(posts => addNewPosts(feed, posts, existingLinks))
+      fetchRss(feed.url)
+        .then(({ posts }) => addNewPosts(feed, posts, existingLinks))
         .catch(() => {
           // ignor error
         }),
     )
 
-    return Promise.all(requests).finally(schedulePolling)
+    return Promise.all(requests).finally(() => schedulePolling(pollFeeds))
   }
 
   render(watchedState, i18n)

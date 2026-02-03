@@ -4,26 +4,18 @@ import { defineConfig } from 'eslint/config'
 import stylistic from '@stylistic/eslint-plugin'
 
 export default defineConfig([
+  stylistic.configs.recommended,
   {
     ignores: ['dist/**', 'node_modules/**'],
   },
   {
-    files: ['**/*.{js,mjs,cjs}'],
-    languageOptions: {
-      globals: globals.browser,
-    },
-    plugins: {
-      js,
-      '@stylistic': stylistic,
-    },
+    files: ['src/**/*.{js,mjs,cjs}'],
+    plugins: { js },
     extends: ['js/recommended'],
-    rules: {
-      '@stylistic/quotes': ['error', 'single'],
-      '@stylistic/semi': ['error', 'never'],
-      '@stylistic/eol-last': 'error',
-      '@stylistic/arrow-parens': ['error', 'always'],
-      '@stylistic/operator-linebreak': ['error', 'before'],
-      '@stylistic/brace-style': ['error', '1tbs'],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      globals: globals.browser,
     },
   },
 ])
