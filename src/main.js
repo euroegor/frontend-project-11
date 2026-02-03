@@ -4,7 +4,7 @@ import render from './view.js'
 import onChange from 'on-change'
 import * as yup from 'yup'
 import initI18n from './locales/initI18n.js'
-import fetchRss from './controllers/rss.js'
+import fetchRss from './controllers/requestRss.js'
 
 initI18n().then((i18n) => { // NOSONAR
   const state = {
